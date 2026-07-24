@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
     permissions:
       contents: write
@@ -24,9 +24,15 @@ jobs:
       - name: 发布单文件
         run: dotnet publish -c Release -o ./publish
 
-      - name: 创建 Release 并上传 exe
+      - name: 上传 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FrameProccssor
+          path: ./publish/FrameProccssor.exe
+
+      - name: 创建 Release（仅 tag 触发）
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
           files: ./publish/FrameProccssor.exe
-          fail_on_unmatched_files: true
